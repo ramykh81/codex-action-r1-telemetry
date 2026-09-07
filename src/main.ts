@@ -144,7 +144,12 @@ export async function main() {
     .requiredOption(
       "--output-file <FILE>",
       "Path where the final message from `codex exec` will be written."
+        )
+    .requiredOption(
+      "--jsonl-output-file <FILE>",
+      "Path where raw codex exec --json JSONL will be written."
     )
+    
     .requiredOption(
       "--output-schema-file <FILE>",
       "Path to a schema file to pass to `codex exec --output-schema`."
@@ -180,6 +185,7 @@ export async function main() {
         cd: string;
         extraArgs: Array<string>;
         outputFile: string;
+        jsonlOutputFile: string;
         outputSchemaFile: string;
         outputSchema: string;
         sandbox: string;
@@ -192,8 +198,9 @@ export async function main() {
         const {
           prompt,
           promptFile,
-          outputFile,
-          codexHome,
+      outputFile,
+      jsonlOutputFile,
+      codexHome,
           cd,
           extraArgs,
           outputSchema,
@@ -258,6 +265,7 @@ export async function main() {
           cd,
           extraArgs,
           explicitOutputFile: emptyAsNull(outputFile),
+          explicitJsonlOutputFile: emptyAsNull(jsonlOutputFile),
           outputSchema: outputSchemaSource,
           sandbox: toOptionalSandboxMode(sandbox),
           permissionProfile: emptyAsNull(permissionProfile),
