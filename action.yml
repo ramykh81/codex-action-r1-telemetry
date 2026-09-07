@@ -354,6 +354,7 @@ runs:
         CODEX_PROMPT: ${{ inputs.prompt }}
         CODEX_PROMPT_FILE: ${{ inputs['prompt-file'] }}
         CODEX_OUTPUT_FILE: ${{ inputs['output-file'] }}
+        CODEX_JSONL_OUTPUT_FILE: ${{ inputs['jsonl-output-file'] }}
         CODEX_HOME: ${{ steps.resolve_home.outputs.codex-home }}
         CODEX_WORKING_DIRECTORY: ${{ inputs['working-directory'] || github.workspace }}
         CODEX_SANDBOX: ${{ inputs.sandbox }}
@@ -373,6 +374,7 @@ runs:
             --prompt "${CODEX_PROMPT}" \
             --prompt-file "${CODEX_PROMPT_FILE}" \
             --output-file "$CODEX_OUTPUT_FILE" \
+            --jsonl-output-file "$CODEX_JSONL_OUTPUT_FILE" \
             --codex-home "$CODEX_HOME" \
             --cd "$CODEX_WORKING_DIRECTORY" \
             --extra-args "$CODEX_ARGS" \
