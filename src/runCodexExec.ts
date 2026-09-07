@@ -126,6 +126,7 @@ export async function runCodexExec({
   cd,
   extraArgs,
   explicitOutputFile,
+  explicitJsonlOutputFile,
   outputSchema,
   model,
   effort,
@@ -139,6 +140,7 @@ export async function runCodexExec({
   cd: string;
   extraArgs: Array<string>;
   explicitOutputFile: string | null;
+  explicitJsonlOutputFile: string | null;
   outputSchema: OutputSchemaSource | null;
   model: string | null;
   effort: string | null;
@@ -312,27 +314,55 @@ export async function runCodexExec({
     await new Promise((resolve, reject) => {
       const child = spawn(program, command, {
         env,
-        stdio: ["pipe", "inherit", "inherit"],
+      stdio: ["pipe", "pipe", "inherit"],
+          
       });
+    
+});
+
+const jsonlChunks: Buffer[] = [];
+child.stdout.on("data", (chunk: Buffer) => {
+  jsonlChunks.push(Buffer.from(chunk));
+});
+
+child.stdin.write(input);
+child.stdin.end();
+
+child.on("error", reject);
+
+child.on("close", async (code) => {
       child.stdin.write(input);
       child.stdin.end();
 
       child.on("error", reject);
 
-      child.on("close", async (code) => {
+            child.on("close", async (code) => {
         if (code !== 0) {
           reject(new Error(`${program} exited with code ${code}`));
           return;
         }
 
         try {
-          await finalizeExecution(outputFile, runAsUser);
+          if (explicitJsonlOutputFile == null) {
+            throw new Error(
+              "JSONL output file is required for trusted telemetry."
+            );
+          }
+
+          await writeFile(
+            explicitJsonlOutputFile,
+            Buffer.concat(jsonlChunks),
+            { mode: 0o600 }
+          );
+
+          await finalizeExecution(outputFile, 
+   runAsUser);
           resolve(undefined);
         } catch (err) {
           reject(err);
         }
-      });
-    });
+      });   
+     });
   } finally {
     await cleanupOutputSchema(resolvedOutputSchema);
   }
